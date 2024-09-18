@@ -2,7 +2,10 @@ package com.exercise4.services;
 
 import com.exercise4.models.Table;
 import com.exercise4.utils.InputUtils;
+
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.util.*;
@@ -13,9 +16,9 @@ public class TableService {
 
     public static Table loadTable(File file) {
         Table table = new Table();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
+        try (InputStream in = new FileInputStream(file)) {
+            List<String> lines = IOUtils.readLines(in, "UTF-8");
+            for (String line : lines) {
                 Map<String, String> row = parseRow(line);
                 if (row != null) {
                     table.getRows().add(row);
@@ -51,21 +54,13 @@ public class TableService {
     public static void populateFileWithDefaultValues(File file) throws IOException {
         String defaultFilePath = "src/main/resources/default.txt";
         File defaultFile = new File(defaultFilePath);
-
+    
         if (!defaultFile.exists()) {
             throw new FileNotFoundException("Default file not found: " + defaultFilePath);
         }
-
-        try (InputStream in = new FileInputStream(defaultFile);
-             OutputStream out = new FileOutputStream(file)) {
-
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
-            }
-            System.out.println("File populated with default values: " + file.getAbsolutePath());
-        }
+    
+        FileUtils.copyFile(defaultFile, file);
+        System.out.println("File populated with default values: " + file.getAbsolutePath());
     }
 
     public static void printTable(Table table) {
@@ -88,7 +83,6 @@ public class TableService {
                 break;
             }
         }
-
         if (!edited) {
             System.out.println("Key not found.");
         } else {
@@ -102,20 +96,16 @@ public class TableService {
         Map<String, Integer> charOccurrences = new HashMap<>();
         Map<String, Set<String>> matchIndices = new HashMap<>();
     
-        // Loop through rows and entries to count occurrences
         for (int i = 0; i < table.getRows().size(); i++) {
             Map<String, String> row = table.getRows().get(i);
             for (Map.Entry<String, String> entry : row.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
     
-                // Count occurrences in key and value
                 countOccurrences(key, searchString, entry, charOccurrences, matchIndices);
                 countOccurrences(value, searchString, entry, charOccurrences, matchIndices);
             }
         }
-    
-        // Print results
         if (charOccurrences.isEmpty()) {
             System.out.println("No matches found.");
         } else {
@@ -134,16 +124,11 @@ public class TableService {
         int index = target.indexOf(searchString);
         while (index != -1) {
             String matchKey = searchString;
-    
-            // Update occurrences count
             charOccurrences.put(matchKey, charOccurrences.getOrDefault(matchKey, 0) + 1);
     
-            // Update match indices
             String entryDescription = entry.getKey() + ":" + entry.getValue();
             matchIndices.computeIfAbsent(matchKey, k -> new HashSet<>())
                         .add(entryDescription);
-    
-            // Find next occurrence
             index = target.indexOf(searchString, index + 1);
         }
     }    
@@ -157,36 +142,27 @@ public class TableService {
     }
 
     public static void resetTable(Table table) {
-        // Get the number of rows from the user
         int numRows = InputUtils.getIntInput("Enter number of rows: ");
         
         List<Map<String, String>> rows = new ArrayList<>();
         
         for (int i = 0; i < numRows; i++) {
-            // Generate a random number of columns between 2 and 5
-            int numColumns = 2 + (int)(Math.random() * 4); // Generates a number between 2 and 5
-            
-            // Generate a random row with the specified number of columns
+            int numColumns = 2 + (int)(Math.random() * 4);
             Map<String, String> row = generateRandomRow(numColumns);
             
             rows.add(row);
         }
-        
-        // Set the generated rows to the table
         table.setRows(rows);
-        
         System.out.println("Table reset to " + numRows + " rows with random key-value pairs.");
     }    
 
     public static void sortRows(Table table) {
-        // Sort each row by concatenated key-value pairs
         List<Map<String, String>> sortedRows = table.getRows().stream()
             .map(row -> {
                 List<Map.Entry<String, String>> sortedEntries = new ArrayList<>(row.entrySet());
                 sortedEntries.sort((entry1, entry2) -> 
                     (entry1.getKey() + entry1.getValue()).compareTo(entry2.getKey() + entry2.getValue())
                 );
-                // Rebuild the row with sorted entries
                 Map<String, String> sortedRow = new LinkedHashMap<>();
                 for (Map.Entry<String, String> entry : sortedEntries) {
                     sortedRow.put(entry.getKey(), entry.getValue());
@@ -194,7 +170,6 @@ public class TableService {
                 return sortedRow;
             })
             .sorted((row1, row2) -> {
-                // Concatenate key-value pairs for sorting rows
                 String concatenatedRow1 = row1.entrySet().stream()
                     .map(entry -> entry.getKey() + entry.getValue())
                     .collect(Collectors.joining());
@@ -243,7 +218,7 @@ public class TableService {
             line.append(entry.getKey()).append(":").append(entry.getValue()).append(" ");
         }
         if (line.length() > 0) {
-            line.setLength(line.length() - 1); // Remove trailing space
+            line.setLength(line.length() - 1);
         }
         writer.write(line.toString());
         writer.newLine();

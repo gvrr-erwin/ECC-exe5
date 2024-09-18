@@ -26,12 +26,11 @@ public class Table {
                   .append(entry.getValue())
                   .append(" ");
             }
-            // Remove trailing space and add new line
             if (sb.length() > 0) {
-                sb.setLength(sb.length() - 1); // Remove trailing space
+                sb.setLength(sb.length() - 1);
                 sb.append(System.lineSeparator());
             }
         }
-        return sb.toString().trim(); // Remove trailing newline
+        return sb.toString().trim();
     }
 }

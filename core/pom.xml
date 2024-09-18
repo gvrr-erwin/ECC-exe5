@@ -11,6 +11,7 @@
     </parent>
 
     <artifactId>core</artifactId>
+    
     <dependencies>
         <dependency>
             <groupId>com.exercise4</groupId>
