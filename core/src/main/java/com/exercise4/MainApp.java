@@ -2,6 +2,7 @@ package com.exercise4;
 
 import com.exercise4.models.Table;
 import com.exercise4.services.TableService;
+import com.exercise4.services.Impl.TableImpl;
 import com.exercise4.utils.InputUtils;
 
 import java.io.File;
@@ -9,7 +10,7 @@ import java.io.IOException;
 
 public class MainApp {
     public static void main(String[] args) {
-        String filePath = "default.txt"; // Default file path
+        String filePath = "default.txt";
 
         if (args.length > 0) {
             filePath = args[0];
@@ -17,40 +18,42 @@ public class MainApp {
 
         File file = new File(filePath);
 
+        TableService tableService = new TableImpl();
+
         try {
             if (!file.exists()) {
-                TableService.createFileWithDefaultValues(file);
+                tableService.createFileWithDefaultValues(file);
             } else if (file.length() == 0) {
-                TableService.populateFileWithDefaultValues(file);
+                tableService.populateFileWithDefaultValues(file);
             }
 
-            Table table = TableService.loadTable(file);
+            Table table = tableService.loadTable(file);
 
             while (true) {
-                TableService.displayOptions();
+                tableService.displayOptions();
                 int choice = InputUtils.getIntInput("Enter your choice:");
 
                 switch (choice) {
                     case 1:
-                        TableService.printTable(table);
+                        tableService.printTable(table);
                         break;
                     case 2:
-                        TableService.editTable(table);
+                        tableService.editTable(table);
                         break;
                     case 3:
-                        TableService.searchTable(table);
+                        tableService.searchTable(table);
                         break;
                     case 4:
-                        TableService.addRow(table);
+                        tableService.addRow(table);
                         break;
                     case 5:
-                        TableService.sortRows(table);
+                        tableService.sortRows(table);
                         break;
                     case 6:
-                        TableService.resetTable(table);
+                        tableService.resetTable(table);
                         break;
                     case 7:
-                        TableService.saveTable(table, file);
+                        tableService.saveTable(table, file);
                         System.out.println("File saved and exiting.");
                         return;
                     default:

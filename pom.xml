@@ -15,7 +15,6 @@
         <module>utils</module>
     </modules>
 
-    <!-- Define the versions of your dependencies here -->
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
