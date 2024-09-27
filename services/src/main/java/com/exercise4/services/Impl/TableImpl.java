@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 
 public class TableImpl implements TableService {
 
+    private final String DEFAULT_VALUE = "src/main/resources/default.txt";
+
     @Override
     public Table loadTable(File file) {
         Table table = new Table();  
@@ -70,7 +72,11 @@ public class TableImpl implements TableService {
 
     @Override
     public void populateFileWithDefaultValues(File file) throws IOException {
-        String defaultFilePath = "src/main/resources/default.txt";
+        if (file == null) {
+            throw new IllegalArgumentException("Target file cannot be null");
+        }
+
+        String defaultFilePath = DEFAULT_VALUE;
         File defaultFile = new File(defaultFilePath);
     
         if (!defaultFile.exists()) {
