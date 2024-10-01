@@ -22,7 +22,7 @@ public class MainApp {
 
         try {
             if (!file.exists()) {
-                tableService.createFileWithDefaultValues(file);
+                tableService.createFile(file);
             } else if (file.length() == 0) {
                 tableService.populateFileWithDefaultValues(file);
             }

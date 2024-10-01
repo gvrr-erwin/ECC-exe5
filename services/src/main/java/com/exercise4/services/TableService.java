@@ -13,7 +13,7 @@ public interface TableService {
 
     void saveTable(Table table, File file);
 
-    void createFileWithDefaultValues(File tempFile) throws IOException;
+    void createFile(File tempFile) throws IOException;
 
     void populateFileWithDefaultValues(File tempFile) throws IOException;
 

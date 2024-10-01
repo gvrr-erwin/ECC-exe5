@@ -61,7 +61,7 @@ public class TableImpl implements TableService {
     }
 
     @Override
-    public void createFileWithDefaultValues(File file) throws IOException {
+    public void createFile(File file) throws IOException {
         if (file.createNewFile()) {
             System.out.println("File created: " + file.getAbsolutePath());
             populateFileWithDefaultValues(file);
@@ -170,10 +170,46 @@ public class TableImpl implements TableService {
         System.out.println("New row added: " + newRow);
     }
 
+    // @Override
+    // public void resetTable(Table table) {
+    //     int numRows = InputUtils.getIntInput("Enter number of rows: ");
+        
+    //     List<Map<String, String>> rows = new ArrayList<>();
+        
+    //     for (int i = 0; i < numRows; i++) {
+    //         int numColumns = 2 + (int)(Math.random() * 4);
+    //         Map<String, String> row = generateRandomRow(numColumns);
+            
+    //         rows.add(row);
+    //     }
+    //     table.setRows(rows);
+    //     System.out.println("Table reset to " + numRows + " rows with random key-value pairs.");
+    // }
+
     @Override
     public void resetTable(Table table) {
-        int numRows = InputUtils.getIntInput("Enter number of rows: ");
-        
+        int numRows = 0;
+
+        while (true) {
+            String input = InputUtils.getStringInput("Enter number of rows: ");
+            
+            if (input.isEmpty()) {
+                System.out.println("No input detected. Please enter a number.");
+                continue; 
+            }
+
+            try {
+                numRows = Integer.parseInt(input);
+                if (numRows < 1) {
+                    System.out.println("Please enter a positive number.");
+                    continue; 
+                }
+                break; 
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid integer.");
+            }
+        }
+
         List<Map<String, String>> rows = new ArrayList<>();
         
         for (int i = 0; i < numRows; i++) {
@@ -185,6 +221,7 @@ public class TableImpl implements TableService {
         table.setRows(rows);
         System.out.println("Table reset to " + numRows + " rows with random key-value pairs.");
     }
+
 
     @Override
     public void sortRows(Table table) {

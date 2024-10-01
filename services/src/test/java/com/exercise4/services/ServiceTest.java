@@ -6,18 +6,13 @@ import com.exercise4.utils.InputUtils;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.io.FileInputStream;
 
 import java.nio.charset.StandardCharsets;
@@ -27,14 +22,20 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,15 +67,34 @@ public class ServiceTest {
 
     @Test
     void testResetTable() {
-        int inputRows = 2;
+        String input = "2";
+        int expectedRows = Integer.parseInt(input);
+
         try (MockedStatic<InputUtils> inputUtilsMockedStatic = mockStatic(InputUtils.class)) {
-            inputUtilsMockedStatic.when(() -> InputUtils.getIntInput(Mockito.anyString()))
-                    .thenReturn(inputRows);
+            inputUtilsMockedStatic.when(() -> InputUtils.getStringInput(Mockito.anyString()))
+                    .thenReturn(input); 
 
             tableService.resetTable(table);
 
             List<Map<String, String>> rows = table.getRows();
-            assertEquals(inputRows, rows.size(), "Number of rows should match the input");
+            assertEquals(expectedRows, rows.size(), "Number of rows should match the input");
+        }
+    }
+
+    @Test
+    void testResetTableWithNegativeInput() {
+        String input = "-2"; 
+        try (MockedStatic<InputUtils> inputUtilsMockedStatic = mockStatic(InputUtils.class)) {
+            inputUtilsMockedStatic.when(() -> InputUtils.getStringInput(Mockito.anyString()))
+                    .thenReturn(input, "-3","4"); 
+
+            ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(outContent));
+
+            tableService.resetTable(table);
+
+            List<Map<String, String>> rows = table.getRows();
+            assertEquals(4, rows.size(), "Number of rows should match the valid input");
         }
     }
 
@@ -145,15 +165,15 @@ public class ServiceTest {
     }
 
     @Test
-    void testCreateFileWithDefaultValues() throws Exception {
+    void testCreateFile() throws Exception {
         File tempDir = new File(System.getProperty("java.io.tmpdir"), "myCustomTempDir");
         if (!tempDir.exists()) {
             tempDir.mkdir();
         }
 
-        File tempFile = new File(tempDir, "testCreateFileWithDefaultValues.txt");
+        File tempFile = new File(tempDir, "testCreateFile.txt");
 
-        tableService.createFileWithDefaultValues(tempFile);
+        tableService.createFile(tempFile);
 
         assertTrue(tempFile.exists(), "The default values file should exist.");
 
